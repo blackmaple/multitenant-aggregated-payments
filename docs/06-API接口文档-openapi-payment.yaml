@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: MultiTenant Aggregated Payment API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  /api/v1/payments/orders:
+    post:
+      summary: 创建支付订单
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrderResponse'
+  /api/v1/payments/orders/{platformOrderNo}:
+    get:
+      summary: 查询支付订单
+      parameters:
+        - in: path
+          name: platformOrderNo
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功
+components:
+  schemas:
+    CreateOrderRequest:
+      type: object
+      required: [tenantId, appId, merchantOrderNo, amount, currency, channelCode, notifyUrl]
+      properties:
+        tenantId: { type: integer, format: int64 }
+        appId: { type: string }
+        merchantOrderNo: { type: string }
+        amount: { type: number, format: decimal }
+        currency: { type: string, example: CNY }
+        channelCode: { type: string, example: WECHAT }
+        subject: { type: string }
+        notifyUrl: { type: string }
+        idempotencyKey: { type: string }
+    CreateOrderResponse:
+      type: object
+      properties:
+        platformOrderNo: { type: string }
+        channelOrderNo: { type: string, nullable: true }
+        status: { type: string }
+        payUrl: { type: string, nullable: true }
+        qrCode: { type: string, nullable: true }
+        prepayInfo: { type: string, nullable: true }
